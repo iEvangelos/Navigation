@@ -7,30 +7,28 @@
 
 import SwiftUI
 
-struct DetailView: View {
-    var number: Int
-
-    var body: some View {
-        Text("Detail View \(number)")
-    }
-
-    //Initiatlise the number, and print a message to console to showcase that the creation of this value happens before we interact with the NavigationLink in the content view.
-    init(number: Int) {
-        self.number = number
-        print("Creating detail view \(number)")
-    }
+//Most of Swift's built-in types already conform to Hashable.
+//If you make a custom struct with properties that all conform to Hashable, you can make the whole struct conform to Hashable with one tiny change.
+struct Student: Hashable {
+    var id = UUID()
+    var name: String
+    var age: Int
 }
 
 struct ContentView: View {
     var body: some View {
         NavigationStack {
-            List(0..<1000) { i in
-                //Simple NavigationLink.
-                //SwiftUI creates a detail view instance just when showing the NavigationLink on screen.
-                //When dealing with dynamic data that ends up being a lot of extra work for SwiftUI.
-                NavigationLink("Tap Me") {
-                    DetailView(number: i)
-                }
+            List(0..<100) { i in
+                //Now we're using NavigationLink with a NavigationDestination
+                NavigationLink("Select \(i)", value: i)
+            }
+            //The navigationDestination() modifier tell it "when you're asked to navigate to an integer, here's what you should do…"
+            .navigationDestination(for: Int.self) { selection in
+                Text("You selected \(selection)")
+            }
+            //This navigationDestination() modifier is similar but for a Student object.
+            .navigationDestination(for: Student.self) { student in
+                Text("You selected \(student.name)")
             }
         }
     }
