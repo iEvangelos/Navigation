@@ -8,30 +8,40 @@
 import SwiftUI
 
 struct ContentView: View {
-    //Create an @State property to store an array of integers that will be used for the path of the NavigationStack
-    @State private var path = [Int]()
-
+    // NavigationPath is able to hold a variety of data types in a single path. In practice it works very similarly to an array.
+    // NavigationPath is what we call a type-eraser – it stores any kind of Hashable data without exposing exactly what type of data each item is.
+    @State private var path = NavigationPath()
+    
     var body: some View {
-        //Bind that property to the path of our NavigationStack, meaning that changing the array will automatically navigate to whatever is in the array, but also changes the array as the user presses Back in the navigation bar.
+        // Bind to the NavigationPath we crated.
         NavigationStack(path: $path) {
-            VStack {
-                //We're setting the whole array so that it just contains the number 32. If anything else happened to be in the array it will be removed, meaning that the NavigationStack will return to its original state before navigating to the number 32.
-                Button("Show 32") {
-                    path = [32]
+            List {
+                ForEach(0..<5) { i in
+                    // Pass in the values as an Int.
+                    NavigationLink("Select Number: \(i)", value: i)
                 }
 
-                //We're appending 64, meaning that it will be added to whatever we were navigating to. So, if our array already contained 32, we'd now have three views in the stack: the original view (called the "root" view), then something to show the number 32, and finally something to show the number 64.
-                Button("Show 64") {
-                    path.append(64)
+                ForEach(0..<5) { i in
+                    // Pass in the value as a String.
+                    NavigationLink("Select String: \(i)", value: String(i))
                 }
-                
-                //That will present a view for 32 then a view for 64, so the user needs to tap Back twice to get back to the root view.
-                Button("Show 32 then 64") {
-                    path = [32, 64]
+            }
+            .toolbar {
+                Button("Push 556") {
+                    // Using the NavigationPath we can push in values as an Int.
+                    path.append(556)
+                }
+
+                Button("Push Hello") {
+                    // // Using the NavigationPath we can push in values as a String.
+                    path.append("Hello")
                 }
             }
             .navigationDestination(for: Int.self) { selection in
-                Text("You selected \(selection)")
+                Text("You selected the number \(selection)")
+            }
+            .navigationDestination(for: String.self) { selection in
+                Text("You selected the string \(selection)")
             }
         }
     }
